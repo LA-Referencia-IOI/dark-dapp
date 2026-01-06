@@ -1,88 +1,102 @@
-# dARK
+# dARK 2.0
 
-> Table of contents :
->  - [How to run](#how-to-run)
->  - [dARK Parameters](#dark-parameters)
+![dARK Logo](docs/figures/dARK_logo.png)
 
-dARK
+**dARK** (Decentralized Archival Resource Key) is a blockchain-based implementation of the [ARK](https://arks.org/) identifier scheme. 
 
-## How to run
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7442743.svg)](https://doi.org/10.5281/zenodo.7442743)
 
-In this section we detail how to deploy the dARK.
-
-> dARK deployment steps:
->  1. [Configuring dARK](#dark-configuration)
->  1. [Requirement install procedures](#requirements-install-procedure)
->  1. [dARK deployment](#how-to-deploy-dark-on-the-blockchain)
-
-
-<details>
-<summary>System Requirements</summary>
-    <ul>
-        <li> python 3.10 </li>
-        <li> pip </li>
-        <li> docker </li>
-        <li> docker-compose </li>
-    </ul>
-</details>
-
-### dARK configuration
-
-Rename the the example_config.ini to config.ini in project root directory of the project.
+## Quick Start
 
 ```bash
-cp example_config.ini config.ini
+# Start the network and deploy
+docker-compose up --build
+
+# Stop the network
+docker-compose down
 ```
 
-The default parameters in the  __config.ini__ file assumes tha the [dark env](https://github.com/dark-pid/) is runing on the local machine. Thus, if you are using a diferent setup update the __config.ini__ file.
+## Architecture
 
-We also prove a [noid provider config file](./example_noid_provider_config.ini). Rename the example_noid_provider_config.ini to noid_provider_config.ini.
+dARK 2.0 uses a **3-node Hyperledger Besu** private network with **QBFT** (BFT) consensus:
 
-```bash
-cp example_noid_provider_config.ini noid_provider_config.ini
-```
+| Component | Description |
+|-----------|-------------|
+| **Consensus** | QBFT (Proof of Authority) |
+| **Block Time** | 5 seconds |
+| **Validators** | 3 nodes |
+| **Contract** | Single `dARK.sol` (~200 lines) |
 
-### Requirements Install Procedure
-
-```sh
-python3 -m venv web3
-```
-```sh
-source web3/bin/activate
-```
-
-```bash
-pip install -r requirements.txt 
-```
-
-### How to deploy dARK on the blockchain
-
-To deploy the dARK first you have to compile and deploy and configure the dARK contracts.
-
-**Deploy contracts on chain**
-```bash
-python.exe .\deploy.py
-```
-
-**Configure the dARK Services and DataBases on Chain**
-```bash
-python.exe .\configure.py
-```
-
-This scripts will employ the config parameters to configure and deploy the dARK.
-
-## dARK Parameters
-
-details of the dARK parameters
-TODO
-- config.ini
-- example_noid_provider_config.ini
-
-### Availabels Wallets
-To import an account chose one of the accounts listed in the genesis.json and copy the private key. For instance;
+## Project Structure
 
 ```
-"privateKey" : "8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63",
-"privateKey" : "c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3",
-"privateKey" : "ae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f",
+dARK/
+├── deploy.py           # Compiles and deploys the contract
+├── configure.py        # Tests the deployed contract
+├── clean.py            # Removes deployment artifacts
+├── docker-compose.yml  # 3 Besu validators + deploy container
+├── dARK_dapp/
+│   ├── dARK.sol        # The single smart contract
+│   └── dark2.0_dapp.md # Contract documentation
+└── docker/
+    ├── Dockerfile
+    └── besu/networkFiles/
+        ├── genesis.json
+        └── keys/       # Validator keys
 ```
+
+## Manual Deployment
+
+### Prerequisites
+
+- Python 3.10+
+- Docker & Docker Compose
+
+### Steps
+
+1. **Copy configuration:**
+   ```bash
+   cp example_config.ini config.ini
+   ```
+
+2. **Start the network:**
+   ```bash
+   docker-compose up --build
+   ```
+
+3. **Or deploy manually (if Besu is running):**
+   ```bash
+   pip install -r requirements.txt
+   python3 deploy.py
+   python3 configure.py
+   ```
+
+## Contract API
+
+| Function | Description |
+|----------|-------------|
+| `register_naan(naan)` | Register a NAAN for your wallet |
+| `create_ark(ark_id, url, cid)` | Create a new ARK |
+| `resolve(ark_id)` | Get the URL for an ARK |
+| `update_ark(ark_id, url, cid)` | Update an existing ARK |
+| `get_ark(ark_id)` | Get full ARK data |
+
+See [dARK_dapp/dark2.0_dapp.md](dARK_dapp/dark2.0_dapp.md) for complete documentation.
+
+## Deploy Account
+
+The default deploy account private key:
+```
+0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f
+```
+
+## License
+
+See [LICENSE](LICENSE) file.
+
+## Links
+
+- [dARK Project](https://www.dark-pid.net/)
+- [dARK Python Gateway](https://github.com/dark-pid/dark-gateway)
+- [dARK Resolver](https://github.com/dark-pid/dark-resolver)
+- [dARK Minter API](https://github.com/dark-pid/hyperdrive)

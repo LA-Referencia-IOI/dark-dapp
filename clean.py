@@ -1,17 +1,26 @@
+"""
+dARK 2.0 - Clean Script
+Removes deployed contracts configuration
+"""
 import os
+import logging
 
-###
-### VARIABLES
-###
+logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(levelname)s | %(message)s')
 
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
-
-config_file_path = os.path.join(PROJECT_ROOT,'config.ini')
-noid_provider_config_path = os.path.join(PROJECT_ROOT,'noid_provider_config.ini')
-deployed_contracts_config_path = os.path.join(PROJECT_ROOT,'deployed_contracts.ini')
+DEPLOYED_CONFIG = os.path.join(PROJECT_ROOT, 'deployed_contracts.ini')
 
 
-try:
-    os.remove(deployed_contracts_config_path)
-except FileNotFoundError:
-    print("The system is alredy clean!")
+def main():
+    logging.info("dARK 2.0 - Clean")
+    
+    try:
+        os.remove(DEPLOYED_CONFIG)
+        logging.info(f"Removed: {DEPLOYED_CONFIG}")
+        logging.info("System is clean!")
+    except FileNotFoundError:
+        logging.info("System is already clean!")
+
+
+if __name__ == "__main__":
+    main()

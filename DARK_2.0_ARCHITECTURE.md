@@ -62,8 +62,10 @@ Based on `dark_testing.ipynb`, here is how to interact:
 
 ```python
 # 1. Register Authority (if not exists)
+# encrypted_key = AES-256 encrypted private key (hex encoded)
+encrypted_key = "0x..."  # Your encrypted key here
 try:
-    auth.functions.register_authority("uuid-1", wallet).transact()
+    auth.functions.register_authority("uuid-1", wallet, encrypted_key).transact()
 except:
     pass # Already registered
 

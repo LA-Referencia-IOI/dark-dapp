@@ -15,6 +15,7 @@ contract Authority {
         string uuid; // External UUID identifier
         address wallet; // Owner wallet
         bool active; // Active status
+        string encrypted_private_key; // AES-256 encrypted, hex encoded
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -74,16 +75,19 @@ contract Authority {
     // ═══════════════════════════════════════════════════════════════════════
 
     /**
-     * @notice Register a new authority
+     * @notice Register a new authority with encrypted private key
      * @param uuid External UUID identifier
      * @param wallet The authority's wallet address
+     * @param encrypted_private_key AES-256 encrypted private key (hex encoded)
      */
     function register_authority(
         string calldata uuid,
-        address wallet
+        address wallet,
+        string calldata encrypted_private_key
     ) external onlyAdmin {
         require(bytes(uuid).length > 0, "Empty UUID");
         require(wallet != address(0), "Invalid wallet");
+        require(bytes(encrypted_private_key).length > 0, "Empty encrypted key");
         require(
             _authorities[uuid].wallet == address(0),
             "UUID already registered"
@@ -96,7 +100,8 @@ contract Authority {
         _authorities[uuid] = AuthorityData({
             uuid: uuid,
             wallet: wallet,
-            active: true
+            active: true,
+            encrypted_private_key: encrypted_private_key
         });
 
         _wallet_to_uuid[wallet] = uuid;
@@ -219,5 +224,18 @@ contract Authority {
         string memory _uuid = _wallet_to_uuid[wallet];
         require(bytes(_uuid).length > 0, "Wallet not registered");
         return _uuid;
+    }
+
+    /**
+     * @notice Get encrypted private key for an authority (admin only)
+     * @param uuid The authority UUID
+     * @return encrypted_private_key The encrypted private key
+     */
+    function get_authority_key(
+        string calldata uuid
+    ) external view onlyAdmin returns (string memory encrypted_private_key) {
+        AuthorityData storage auth = _authorities[uuid];
+        require(auth.wallet != address(0), "Authority not found");
+        return auth.encrypted_private_key;
     }
 }

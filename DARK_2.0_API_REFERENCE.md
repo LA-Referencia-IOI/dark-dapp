@@ -19,10 +19,15 @@ Manages identity and write permissions.
     *   *Reverts*: If wallet is not associated with any authority.
 
 **Write Functions**
-*   `register_authority(string uuid, address wallet)`
+*   `register_authority(string uuid, address wallet, string encrypted_private_key)`
     *   *Access*: Admin only.
-    *   *Gas*: ~80k-100k.
-    *   *Errors*: "UUID already registered", "Wallet already registered".
+    *   *Gas*: ~80k-120k.
+    *   *Params*: `encrypted_private_key` - AES-256 encrypted private key (hex encoded).
+    *   *Errors*: "UUID already registered", "Wallet already registered", "Empty encrypted key".
+*   `get_authority_key(string uuid) returns (string encrypted_private_key)`
+    *   *Access*: Admin only.
+    *   *Returns*: The encrypted private key for the authority.
+    *   *Reverts*: If UUID is not registered.
 *   `authorize_naan(string naan)`
     *   *Access*: Registered Active Authority.
     *   *Gas*: ~60k.

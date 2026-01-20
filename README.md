@@ -84,7 +84,3 @@ dARK/
 
 ## Links
 
-- [dARK Project](https://www.dark-pid.net/)
-- [dARK Python Gateway](https://github.com/dark-pid/dark-gateway)
-- [dARK Resolver](https://github.com/dark-pid/dark-resolver)
-- [dARK Minter API](https://github.com/dark-pid/hyperdrive)

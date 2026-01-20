@@ -27,15 +27,21 @@ docker-compose down -v && docker-compose up -d
 ```
 *Wait 10-15 seconds for Besu to initialize RPC.*
 
-### 3. Deploy Contracts
+### 3. Install Dependencies
+Ensure all required Python packages are installed.
+```bash
+source .venv/bin/activate && pip install -r requirements.txt
+```
+
+### 4. Deploy Contracts
 Compile and deploy contracts.
 ```bash
 source .venv/bin/activate && python3 deploy.py
 ```
 *This updates `deployed_contracts.ini`.*
 
-### 4. Configure & Test
-Run the configuration validation script.
+### 5. Configure & Validate
+Run the configuration validation script to ensure the deployment works as expected.
 ```bash
 source .venv/bin/activate && python3 configure.py
 ```

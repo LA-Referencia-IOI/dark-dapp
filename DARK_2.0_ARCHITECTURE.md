@@ -1,6 +1,9 @@
-# dARK 2.0 - Technical Architecture & Walkthrough
+# dARK 2.0 - Technical Architecture
 
-This document updates the understanding of the dARK decentralized identifier system, detailing the shift to an **Authority-Centric** architecture (v2.0).
+> This guide is part of the [dARK 2.0 Documentation](README.md).
+> See also: [Developer Guide](DARK_2.0_GUIDE.md) | [API Reference](DARK_2.0_API_REFERENCE.md)
+
+This document details the **Authority-Centric** architecture (v2.0) of the dARK decentralized identifier system.
 
 ## 1. Core Architecture Changes
 

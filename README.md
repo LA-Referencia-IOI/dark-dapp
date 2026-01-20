@@ -4,7 +4,29 @@
 
 **dARK** (Decentralized Archival Resource Key) is a blockchain-based implementation of the [ARK](https://arks.org/) identifier scheme. 
 
+**dARK is public, federated digital infrastructure.** It is designed to ensure permanent, decentralized access to identifiers while preventing proprietary appropriation of the core protocol.
+
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7442743.svg)](https://doi.org/10.5281/zenodo.7442743)
+
+## Documentation
+
+*   📖 **[Developer Guide](DARK_2.0_GUIDE.md)**: The main manual for using dARK 2.0. Start here.
+*   🏗 **[Architecture](DARK_2.0_ARCHITECTURE.md)**: High-level system design and authority model.
+*   ⚙️ **[API Reference](DARK_2.0_API_REFERENCE.md)**: Technical specification, ABI details, and error codes.
+
+## License
+
+### Software License
+The dARK source code is licensed under the **GNU Affero General Public License v3.0 (AGPLv3)**.
+*   **Conditions**: You are free to use, modify, and distribute the software without cost, provided that any network services you offer based on dARK also make their source code available to users (closing the "ASP loophole").
+*   See the [LICENSE](LICENSE) file for the full text.
+
+### Documentation License
+New documentation and non-code assets found in this repository are licensed under **Creative Commons Attribution 4.0 International (CC BY 4.0)**. This allows for broad sharing and adaptation of the educational materials.
+
+## Contributing
+
+See **[CONTRIBUTING.md](CONTRIBUTING.md)** for details on how to propose changes.
 
 ## Quick Start
 
@@ -16,33 +38,22 @@ docker-compose up --build
 docker-compose down
 ```
 
-## Architecture
-
-dARK 2.0 uses a **3-node Hyperledger Besu** private network with **QBFT** (BFT) consensus:
-
-| Component | Description |
-|-----------|-------------|
-| **Consensus** | QBFT (Proof of Authority) |
-| **Block Time** | 5 seconds |
-| **Validators** | 3 nodes |
-| **Contract** | Single `dARK.sol` (~200 lines) |
-
 ## Project Structure
 
 ```
 dARK/
-├── deploy.py           # Compiles and deploys the contract
-├── configure.py        # Tests the deployed contract
-├── clean.py            # Removes deployment artifacts
-├── docker-compose.yml  # 3 Besu validators + deploy container
+├── DARK_2.0_GUIDE.md          # Main Developer Guide
+├── DARK_2.0_ARCHITECTURE.md   # System Architecture
+├── DARK_2.0_API_REFERENCE.md  # API & Technical Reference
+├── deploy.py                  # Deployment script
+├── configure.py               # Test/Configuration script
+├── clean.py                   # Cleanup script
+├── docker-compose.yml         # Network orchestration
 ├── dARK_dapp/
-│   ├── dARK.sol        # The single smart contract
-│   └── dark2.0_dapp.md # Contract documentation
-└── docker/
-    ├── Dockerfile
-    └── besu/networkFiles/
-        ├── genesis.json
-        └── keys/       # Validator keys
+│   ├── dARK.sol               # Storage Contract
+│   ├── Authority.sol          # Access Control Contract
+│   └── IAuthority.sol         # Interface
+└── docker/                    # Docker configs
 ```
 
 ## Manual Deployment
@@ -70,29 +81,6 @@ dARK/
    python3 deploy.py
    python3 configure.py
    ```
-
-## Contract API
-
-| Function | Description |
-|----------|-------------|
-| `register_naan(naan)` | Register a NAAN for your wallet |
-| `create_ark(ark_id, url, cid)` | Create a new ARK |
-| `resolve(ark_id)` | Get the URL for an ARK |
-| `update_ark(ark_id, url, cid)` | Update an existing ARK |
-| `get_ark(ark_id)` | Get full ARK data |
-
-See [dARK_dapp/dark2.0_dapp.md](dARK_dapp/dark2.0_dapp.md) for complete documentation.
-
-## Deploy Account
-
-The default deploy account private key:
-```
-0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f
-```
-
-## License
-
-See [LICENSE](LICENSE) file.
 
 ## Links
 

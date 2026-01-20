@@ -110,8 +110,10 @@ def main():
             Authority.functions.get_authority(test_uuid).call()
             logging.info(f"  Authority '{test_uuid}' already registered")
         except:
+            # Dummy encrypted key for testing
+            dummy_enc_key = "0x0000000000000000000000000000000000000000000000000000000000000000"
             receipt = send_tx(w3, bc_config, account, Authority, 
-                            'register_authority', test_uuid, account.address)
+                            'register_authority', test_uuid, account.address, dummy_enc_key)
             logging.info(f"  ✅ Authority registered! Gas: {receipt['gasUsed']}")
     except Exception as e:
         logging.error(f"  ❌ Failed: {e}")

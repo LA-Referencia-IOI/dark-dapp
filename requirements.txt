@@ -1,6 +1,5 @@
 # dARK 2.0 requirements
 web3>=6.0.0
 py-solc-x>=2.0.0
-jupyter
 cryptography>=41.0.0
-python-dotenv
+python-dotenv>=1.0.0

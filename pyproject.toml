@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dark-dapp"
+version = "0.1.0"
+description = "Deployment and contract tooling for dARK 2.0"
+readme = "README.md"
+license = {text = "AGPL-3.0-or-later"}
+requires-python = ">=3.9"
+authors = [{name = "dARK Team"}]
+keywords = ["dark", "ark", "blockchain", "solidity", "deployment", "besu"]
+dependencies = [
+    "web3>=6.0.0",
+    "py-solc-x>=2.0.0",
+    "cryptography>=41.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "jupyter>=1.0.0",
+]
+
+[project.scripts]
+dark-dapp-deploy = "deploy:main"
+dark-dapp-configure = "configure:main"
+dark-dapp-clean = "clean:main"
+
+[tool.setuptools]
+py-modules = ["deploy", "configure", "clean"]

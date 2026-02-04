@@ -77,9 +77,9 @@ dARK/
 
 3. **Or deploy manually (if Besu is running):**
    ```bash
-   pip install -r requirements.txt
-   python3 deploy.py
-   python3 configure.py
+   pip install -e .
+   dark-dapp-deploy
+   dark-dapp-configure
    ```
 
 ## Links

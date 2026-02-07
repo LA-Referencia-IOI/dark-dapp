@@ -1,6 +1,6 @@
 # dARK 2.0 - API & Library Developer Reference
 
-> This guide is part of the [dARK 2.0 Documentation](README.md).
+> This guide is part of the [dARK 2.0 Documentation](dark/dark-dapp/README.md).
 > See also: [Developer Guide](DARK_2.0_GUIDE.md) | [Architecture](DARK_2.0_ARCHITECTURE.md)
 
 This guide provides technical specifications for developers building APIs, SDKs, or libraries on top of the dARK 2.0 smart contracts.

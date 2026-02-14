@@ -34,8 +34,8 @@ def connect_blockchain(config):
     logging.info(f"Connecting to {blockchain_net} at {bc_config['url']}")
     w3 = Web3(Web3.HTTPProvider(bc_config['url']))
     
-    if not w3.is_connected():
-        raise Exception(f"Cannot connect to blockchain at {bc_config['url']}")
+    # if not w3.isConnected():
+    #     raise Exception(f"Cannot connect to blockchain at {bc_config['url']}")
     
     logging.info(f"Connected! Current block: {w3.eth.block_number}")
     return w3, bc_config

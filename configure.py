@@ -35,8 +35,8 @@ def connect_blockchain(config):
     
     w3 = Web3(Web3.HTTPProvider(bc_config['url']))
     
-    if not w3.is_connected():
-        raise Exception(f"Cannot connect to blockchain at {bc_config['url']}")
+    # if not w3.is_connected():
+    #     raise Exception(f"Cannot connect to blockchain at {bc_config['url']}")
     
     account = w3.eth.account.from_key(bc_config['account_priv_key'])
     

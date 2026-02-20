@@ -141,3 +141,7 @@ deployed_contracts.ini
 noid_provider_config.ini
 .agent/.DS_Store
 .DS_Store
+
+
+.devtime.json
+dARK_dapp/compiled/

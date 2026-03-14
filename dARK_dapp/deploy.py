@@ -2,16 +2,48 @@ from web3 import Web3, HTTPProvider
 import json
 import configparser
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 # ==========================================
 # CONFIGURATION
 # ==========================================
 
-RPC_URL = "http://127.0.0.1:8545"
+# Define the Project Root (Level 1)
+# __file__ is deploy.py, dirname is darl_dapp/, second dirname is the root.
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-ACCOUNT_ADDRESS = "0xFE3B557E8Fb62b89F4916B721be55cEb828dBd73"
-PRIVATE_KEY = "0x8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63"
+config = configparser.ConfigParser()
+config_path = os.path.join(BASE_DIR, "config.ini")
+config.read(config_path)
 
+# Check if config was actually loaded
+if not config.sections():
+    print(f"Error: Configuration file not found at: {config_path}")
+
+blockchain_net = config['base']['blockchain_net']
+print(f"Selected network: {blockchain_net}")
+
+RPC_URL = config[blockchain_net]['url']
+accopled_setup = config[blockchain_net].getboolean('acoupled_setup')
+
+if not accopled_setup:
+    print("Using hardcoded account and private key for deployment")
+    ACCOUNT_ADDRESS = "0xFE3B557E8Fb62b89F4916B721be55cEb828dBd73"
+    PRIVATE_KEY = "0x8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63"
+else:
+    # 1. Path to the .env file at Level 1
+    env_path = os.path.join(BASE_DIR, ".env")
+
+    load_dotenv(env_path)
+    
+    ACCOUNT_ADDRESS = config[blockchain_net]['MASTER_WALLET_ADDRESS']
+    PRIVATE_KEY = config[blockchain_net]['MASTER_PRIVATE_KEY']
+
+    if not ACCOUNT_ADDRESS or not PRIVATE_KEY:
+        print("Warning: Environment variables not found. Check your .env file.")
+    else:
+        print(f"Wallet loaded: {ACCOUNT_ADDRESS}")
 COMPILED_DIR = Path("./compiled")
 OUTPUT_FILE = Path("./deployed_contracts.ini")
 

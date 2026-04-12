@@ -1,46 +1,43 @@
-import solcx
+import os
+import sys
 import json
+import subprocess
+import solcx
 from pathlib import Path
 
 # ==========================================
 # CONFIGURATION
 # ==========================================
 
-# Solidity compiler version
 SOLC_VERSION = "0.8.17"
-
-# Directory containing Solidity contracts
 CONTRACT_DIR = Path("./contracts")
-
-# Directory to save compiled artifacts
 OUTPUT_DIR = Path("./compiled")
+DOCKER_IMAGE_NAME = "besu-compiler"
 
 # ==========================================
-# HELPER FUNCTIONS
+# SOLIDITY COMPILATION LOGIC
 # ==========================================
 
 def setup_solc(version: str):
     """
-    Install and set the required Solidity compiler version.
+    Ensures the correct Solidity compiler version is installed and selected.
     """
     installed_versions = solcx.get_installed_solc_versions()
     if version not in installed_versions:
-        print(f"Installing solc version {version}...")
+        print(f"[INFO] Installing solc version {version}...")
         solcx.install_solc(version)
     solcx.set_solc_version(version)
-    print(f"Using solc version: {version}")
-
+    print(f"[INFO] Using solc version: {version}")
 
 def get_contract_files(contract_dir: Path):
     """
-    Recursively find all Solidity contract files in the given directory.
+    Recursively finds all .sol files in the specified directory.
     """
     return [str(f) for f in contract_dir.glob("**/*.sol")]
 
-
 def load_contract_sources(contract_files):
     """
-    Load Solidity source files into a dictionary compatible with compile_standard().
+    Reads contract content and formats it for the Solidity standard compiler.
     """
     sources = {}
     for file_path in contract_files:
@@ -51,111 +48,131 @@ def load_contract_sources(contract_files):
             sources[path.name] = {"content": f.read()}
     return sources
 
-
 def compile_contracts(sources: dict):
     """
-    Compile all contracts together using solcx.compile_standard.
-    Optimizer enabled with 200 runs.
+    Compiles Solidity sources using standard JSON input/output.
     """
-    compiled = solcx.compile_standard(
+    return solcx.compile_standard(
         {
             "language": "Solidity",
             "sources": sources,
             "settings": {
                 "optimizer": {"enabled": True, "runs": 200},
-                # "evmVersion": "paris",
                 "outputSelection": {
                     "*": {
-                        "*": [
-                            "abi",
-                            "evm.bytecode",
-                            "evm.deployedBytecode",
-                            "metadata"
-                        ]
+                        "*": ["abi", "evm.bytecode", "evm.deployedBytecode", "metadata"]
                     }
                 }
             },
         },
         allow_paths="."
     )
-    return compiled
 
-
-def save_compiled_artifacts(compiled_output: dict):
+def save_artifacts(compiled_output: dict):
     """
-    Extract ABI, bytecode, and deployedBytecode from compiled contracts.
-    Save each contract's artifacts in OUTPUT_DIR.
+    Extracts and saves ABI and Bytecode files for each compiled contract.
     """
     OUTPUT_DIR.mkdir(exist_ok=True)
-
     contracts = compiled_output.get("contracts", {})
 
     for file_name, file_contracts in contracts.items():
         for contract_name, contract_data in file_contracts.items():
             abi = contract_data.get("abi")
             bytecode = contract_data.get("evm", {}).get("bytecode", {}).get("object", "")
-            deployed_bytecode = contract_data.get("evm", {}).get("deployedBytecode", {}).get("object", "")
-
+            
             # Save ABI
-            abi_path = OUTPUT_DIR / f"{contract_name}ABI.json"
-            with open(abi_path, "w", encoding="utf-8") as f:
+            with open(OUTPUT_DIR / f"{contract_name}ABI.json", "w", encoding="utf-8") as f:
                 json.dump(abi, f, indent=2)
-
+            
             # Save Bytecode
-            bytecode_path = OUTPUT_DIR / f"{contract_name}Bytecode.txt"
-            with open(bytecode_path, "w", encoding="utf-8") as f:
+            with open(OUTPUT_DIR / f"{contract_name}Bytecode.txt", "w", encoding="utf-8") as f:
                 f.write(bytecode)
-
-            # Save Deployed Bytecode
-            deployed_path = OUTPUT_DIR / f"{contract_name}DeployedBytecode.txt"
-            with open(deployed_path, "w", encoding="utf-8") as f:
-                f.write(deployed_bytecode)
-
-            print(f"Saved artifacts for contract: {contract_name}")
-            print(f"  ABI: {abi_path}")
-            print(f"  Bytecode: {bytecode_path}")
-            print(f"  Deployed Bytecode: {deployed_path}")
-
-    # Save full compiled output for debugging/deployment reference
-    compiled_json_path = OUTPUT_DIR / "compiled.json"
-    with open(compiled_json_path, "w", encoding="utf-8") as f:
-        json.dump(compiled_output, f, indent=2)
-    print(f"\nFull compiled output saved at: {compiled_json_path}")
-
+            
+            print(f"[SUCCESS] Artifacts saved for: {contract_name}")
 
 # ==========================================
-# MAIN EXECUTION
+# ORCHESTRATION LOGIC (DOCKER & QEMU)
 # ==========================================
 
-def main():
+def run_orchestration():
+    """
+    Handles environment setup, QEMU registration, and Docker execution.
+    This runs natively on the Host system (AWS ARM64).
+    """
+    print("--- Starting Automated Compilation Environment ---")
+    current_dir = os.path.abspath(os.getcwd())
+
+    # Step 1: Register QEMU static binaries using the official Docker binfmt installer.
+    # This automatically detects the host architecture and installs the required emulators.
+    print("[1/3] Registering QEMU multi-arch support via tonistiigi/binfmt...")
     try:
-        # Step 1: Install and set Solidity compiler
+        subprocess.run([
+            "docker", "run", "--rm", "--privileged", 
+            "tonistiigi/binfmt", "--install", "all"
+        ], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"[ERROR] Failed to register QEMU: {e}")
+        sys.exit(1)
+
+    # Step 2: Build the Docker image specifically forcing AMD64 architecture
+    print("[2/3] Building Docker image for x86_64 architecture...")
+    try:
+        subprocess.run([
+            "docker", "build", 
+            "--platform", "linux/amd64", 
+            "-t", DOCKER_IMAGE_NAME, "."
+        ], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"[ERROR] Docker build failed: {e}")
+        sys.exit(1)
+
+    # Step 3: Run the container, mapping the local volume to save outputs
+    print("[3/3] Running compilation inside emulated container...")
+    try:
+        subprocess.run([
+            "docker", "run", "--rm",
+            "--platform", "linux/amd64",
+            "-v", f"{current_dir}/compiled:/app/compiled",
+            "-e", "IN_DOCKER=true",
+            DOCKER_IMAGE_NAME
+        ], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"[ERROR] Container execution failed: {e}")
+        sys.exit(1)
+
+def start_compilation():
+    """
+    Actual compilation process. This runs INSIDE the AMD64 Docker Container.
+    """
+    try:
         setup_solc(SOLC_VERSION)
+        
+        files = get_contract_files(CONTRACT_DIR)
+        if not files:
+            print(f"[ERROR] No contracts found in {CONTRACT_DIR}")
+            return
 
-        # Step 2: Gather all contract files
-        contract_files = get_contract_files(CONTRACT_DIR)
-        if not contract_files:
-            raise FileNotFoundError(f"No Solidity files found in {CONTRACT_DIR}")
-        print(f"Found {len(contract_files)} contract(s) to compile.")
-
-        # Step 3: Load sources
-        print("Loading contract sources...")
-        sources = load_contract_sources(contract_files)
-
-        # Step 4: Compile contracts
-        print("Compiling contracts...")
-        compiled_output = compile_contracts(sources)
-
-        # Step 5: Save artifacts
-        print("Saving compiled artifacts...")
-        save_compiled_artifacts(compiled_output)
-
-        print("\nAll contracts compiled successfully.")
-
+        print(f"[INFO] Found {len(files)} contracts. Loading sources...")
+        sources = load_contract_sources(files)
+        
+        print("[INFO] Compiling...")
+        output = compile_contracts(sources)
+        
+        print("[INFO] Saving artifacts to host filesystem...")
+        save_artifacts(output)
+        
+        print("\n--- Compilation Completed Successfully ---")
     except Exception as e:
-        print("\nCompilation failed.")
-        print(f"Error: {e}")
+        print(f"[FATAL] Compilation error: {e}")
+        sys.exit(1)
 
+# ==========================================
+# MAIN ENTRY POINT
+# ==========================================
 
 if __name__ == "__main__":
-    main()
+    # Check if the script is running inside the Docker container or on the Host
+    if os.environ.get("IN_DOCKER") == "true":
+        start_compilation()
+    else:
+        run_orchestration()

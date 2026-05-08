@@ -12,23 +12,27 @@ def run_shell(cmd: str, cwd: str = None) -> None:
         print(f"[ERROR] Command failed: {cmd}")
 
 def test_endpoints():
+    import time
+    print("\n[INFO] Waiting 20 seconds for services to boot up...")
+    time.sleep(20)
+    
     endpoints = {
-        "ADMIN_API_BASE_URL": "http://localhost:8000",
-        "MINTER_BASE_URL": "http://localhost:8001",
-        "RESOLVER_BASE_URL": "http://localhost:8002",
-        "STORE_API_BASE_URL": "http://localhost:8003",
-        "IPFS_API_BASE_URL": "http://localhost:5001",
-        "IPFS_CLUSTER_API_URL": "http://localhost:9094"
+        "ADMIN_API_BASE_URL": ("http://localhost:8000/health", "GET"),
+        "MINTER_BASE_URL": ("http://localhost:8001/health", "GET"),
+        "RESOLVER_BASE_URL": ("http://localhost:8002/health", "GET"),
+        "STORE_API_BASE_URL": ("http://localhost:8003/health", "GET"),
+        "IPFS_API_BASE_URL": ("http://localhost:5001/api/v0/version", "POST"),
+        "IPFS_CLUSTER_API_URL": ("http://localhost:9094/id", "GET")
     }
     
     print("\n=== Testing Endpoints ===")
-    for name, url in endpoints.items():
+    for name, (url, method) in endpoints.items():
         try:
-            req = urllib.request.Request(url, method="GET")
+            req = urllib.request.Request(url, method=method)
             with urllib.request.urlopen(req, timeout=3) as response:
                 print(f"[{name}] {url} - Status: {response.status}")
         except urllib.error.HTTPError as e:
-            print(f"[{name}] {url} - Status: {e.code}")
+            print(f"[{name}] {url} - Status: {e.code} (Service is UP)")
         except urllib.error.URLError as e:
             print(f"[{name}] {url} - Failed to connect")
         except Exception as e:

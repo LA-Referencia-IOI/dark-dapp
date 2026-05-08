@@ -33,6 +33,9 @@ contract dARK {
     /// @notice ARK hash to ARK data mapping (hash of "naan/name")
     mapping(bytes32 => ARK) private _arks;
 
+    /// @notice Total number of ARKs created
+    uint256 private _ark_count;
+
     // ═══════════════════════════════════════════════════════════════════════
     // EVENTS
     // ═══════════════════════════════════════════════════════════════════════
@@ -44,6 +47,7 @@ contract dARK {
         string url,
         string cid
     );
+
     event ARKUpdated(string naan, string name, string url, string cid);
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -83,10 +87,6 @@ contract dARK {
 
     /**
      * @notice Create a new ARK
-     * @param naan The NAAN (e.g., "12345")
-     * @param name The name/identifier within the NAAN (e.g., "abc123")
-     * @param url Resolution URL
-     * @param cid IPFS CID for metadata
      */
     function create_ark(
         string calldata naan,
@@ -112,15 +112,14 @@ contract dARK {
             updated_at: block.timestamp
         });
 
+        // increment counter
+        _ark_count += 1;
+
         emit ARKCreated(naan, name, msg.sender, url, cid);
     }
 
     /**
      * @notice Update URL and/or CID of an existing ARK
-     * @param naan The NAAN of the ARK
-     * @param name The name of the ARK
-     * @param url New resolution URL
-     * @param cid New IPFS CID
      */
     function update_ark(
         string calldata naan,
@@ -142,12 +141,6 @@ contract dARK {
     // VIEW FUNCTIONS
     // ═══════════════════════════════════════════════════════════════════════
 
-    /**
-     * @notice Resolve an ARK to its URL
-     * @param naan The NAAN
-     * @param name The name
-     * @return url The resolution URL
-     */
     function resolve(
         string calldata naan,
         string calldata name
@@ -157,12 +150,6 @@ contract dARK {
         return _arks[ark_hash].url;
     }
 
-    /**
-     * @notice Get full ARK data
-     * @param naan The NAAN
-     * @param name The name
-     * @return ark The complete ARK struct
-     */
     function get_ark(
         string calldata naan,
         string calldata name
@@ -172,12 +159,6 @@ contract dARK {
         return _arks[ark_hash];
     }
 
-    /**
-     * @notice Check if an ARK exists
-     * @param naan The NAAN
-     * @param name The name
-     * @return True if the ARK exists
-     */
     function ark_exists(
         string calldata naan,
         string calldata name
@@ -187,9 +168,12 @@ contract dARK {
     }
 
     /**
-     * @notice Get the Authority contract address
-     * @return The Authority contract address
+     * @notice Number of ARKs created (for analytics, not used in logic)
      */
+    function get_ark_count() external view returns (uint256) {
+        return _ark_count;
+    }
+
     function get_authority_contract() external view returns (address) {
         return address(_authority);
     }
@@ -198,12 +182,6 @@ contract dARK {
     // INTERNAL FUNCTIONS
     // ═══════════════════════════════════════════════════════════════════════
 
-    /**
-     * @dev Compute hash from naan and name
-     * @param naan The NAAN
-     * @param name The name
-     * @return The keccak256 hash of "naan/name"
-     */
     function _compute_hash(
         string calldata naan,
         string calldata name

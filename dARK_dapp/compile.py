@@ -130,11 +130,13 @@ def run_orchestration():
     # Step 3: Run the container, mapping the local volume to save outputs
     print("[3/3] Running compilation inside emulated container...")
     try:
+        home_dir = os.path.expanduser("~")
         subprocess.run([
             "docker", "run", "--rm",
             "--network=host",
             "--platform", "linux/amd64",
             "-v", f"{current_dir}/compiled:/app/compiled",
+            "-v", f"{home_dir}/.solcx:/root/.solcx",
             "-e", "IN_DOCKER=true",
             DOCKER_IMAGE_NAME
         ], check=True)

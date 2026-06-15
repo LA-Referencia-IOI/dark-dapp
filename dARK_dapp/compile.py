@@ -132,6 +132,7 @@ def run_orchestration():
     try:
         subprocess.run([
             "docker", "run", "--rm",
+            "--network=host",
             "--platform", "linux/amd64",
             "-v", f"{current_dir}/compiled:/app/compiled",
             "-e", "IN_DOCKER=true",

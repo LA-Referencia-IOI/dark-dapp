@@ -118,8 +118,9 @@ def run_orchestration():
     print("[2/3] Building Docker image for x86_64 architecture...")
     try:
         subprocess.run([
-            "docker", "build", 
-            "--platform", "linux/amd64", 
+            "docker", "build",
+            "--network=host",
+            "--platform", "linux/amd64",
             "-t", DOCKER_IMAGE_NAME, "."
         ], check=True)
     except subprocess.CalledProcessError as e:

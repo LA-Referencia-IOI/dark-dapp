@@ -87,7 +87,7 @@ blockchain_net = dark-local        # active network section
 
 [dark-local]
 url              = http://localhost:8545
-chain_id         = 1337
+chain_id         = 2025
 account_priv_key = 0x...           # private key of the deployer / contract admin
 ```
 
@@ -169,7 +169,8 @@ jupyter notebook test-dapp.ipynb
 The dARK source code is licensed under the **GNU Affero General Public License v3.0 (AGPLv3)**.
 
 - You are free to use, modify, and distribute the software without cost, provided that network services built on dARK also make their source code available (closing the "ASP loophole").
-- See the [LICENSE](LICENSE) file for the full text.
+- Licensing follows the repository policy; no standalone license file is
+  included in this component.
 
 ### Documentation License
 

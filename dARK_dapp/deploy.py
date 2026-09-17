@@ -115,7 +115,10 @@ def deploy_contract(name, abi, bytecode, constructor_args=None):
 
     signed_txn = web3.eth.account.sign_transaction(txn, PRIVATE_KEY)
 
-    tx_hash = web3.eth.send_raw_transaction(signed_txn.rawTransaction)
+    raw_transaction = getattr(signed_txn, "raw_transaction", getattr(signed_txn, "rawTransaction", None))
+    if raw_transaction is None:
+        raise RuntimeError("eth-account returned a signed transaction without raw bytes")
+    tx_hash = web3.eth.send_raw_transaction(raw_transaction)
 
     print(f"Deploying {name}...")
     print(f"TX hash: {tx_hash.hex()}")

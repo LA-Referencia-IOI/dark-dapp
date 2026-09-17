@@ -58,7 +58,7 @@ dARK/
 
 ## Prerequisites
 
-- Python 3.10+
+- Python 3.14
 - A running [Hyperledger Besu](https://besu.hyperledger.org/) node (or compatible EVM node)
 
 Install Python dependencies:

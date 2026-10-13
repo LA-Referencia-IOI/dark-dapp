@@ -6,6 +6,7 @@ pragma solidity ^0.8.17;
  * @notice Interface for Authority contract
  */
 interface IAuthority {
+    function admin() external view returns (address);
     /**
      * @notice Check if a wallet is authorized for a NAAN
      * @param wallet The wallet to check

@@ -37,6 +37,9 @@ contract Authority {
     /// @notice Contract admin
     address public admin;
 
+    mapping(string => bytes32) private _client_public_keys;
+    event AuthorityClientKeyChanged(string uuid, bytes32 public_key);
+
     // ═══════════════════════════════════════════════════════════════════════
     // EVENTS
     // ═══════════════════════════════════════════════════════════════════════
@@ -84,7 +87,7 @@ contract Authority {
         string calldata uuid,
         address wallet,
         string calldata encrypted_private_key
-    ) external onlyAdmin {
+    ) public onlyAdmin {
         require(bytes(uuid).length > 0, "Empty UUID");
         require(wallet != address(0), "Invalid wallet");
         require(bytes(encrypted_private_key).length > 0, "Empty encrypted key");
@@ -107,6 +110,28 @@ contract Authority {
         _wallet_to_uuid[wallet] = uuid;
 
         emit AuthorityRegistered(uuid, wallet);
+    }
+
+    function register_authority_with_client_key(
+        string calldata uuid, address wallet,
+        string calldata encrypted_private_key, bytes32 public_key
+    ) external onlyAdmin {
+        require(public_key != bytes32(0), "Empty client key");
+        register_authority(uuid, wallet, encrypted_private_key);
+        _client_public_keys[uuid] = public_key;
+        emit AuthorityClientKeyChanged(uuid, public_key);
+    }
+
+    function set_authority_client_key(string calldata uuid, bytes32 public_key) external onlyAdmin {
+        require(_authorities[uuid].wallet != address(0), "Authority not found");
+        require(public_key != bytes32(0), "Empty client key");
+        _client_public_keys[uuid] = public_key;
+        emit AuthorityClientKeyChanged(uuid, public_key);
+    }
+
+    function get_authority_auth(string calldata uuid) external view returns (bytes32 public_key, bool active) {
+        require(_authorities[uuid].wallet != address(0), "Authority not found");
+        return (_client_public_keys[uuid], _authorities[uuid].active);
     }
 
     /**

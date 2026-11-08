@@ -12,11 +12,12 @@
 
 ## Documentation
 
-- 📖 **[SDK Guide](../../docs/sdk-guide.md)**: Start here — usage, data structures, and lifecycle.
-- 🏗 **[Platform Architecture](../../docs/platform-architecture.md)**: System design and the Authority model.
-- ⚙️ **[API Reference](../../docs/api-reference.md)**: Contract functions, events, and error codes.
+- [Contracts reference](docs/contracts.md): every function, modifier, event and revert of `IAuthority`, `Authority` and `dARK`, with the authority lifecycle.
+- [SDK Guide](https://github.com/LA-Referencia-IOI/dark-deployer/blob/main/docs/sdk-guide.md): usage, data structures and lifecycle.
+- [Platform Architecture](https://github.com/LA-Referencia-IOI/dark-deployer/blob/main/docs/platform-architecture.md): system design and the Authority model.
+- [API Reference](https://github.com/LA-Referencia-IOI/dark-deployer/blob/main/docs/api-reference.md): service APIs built on these contracts.
 
-These canonical documents live in the dark-deployer repository (`docs/`).
+The platform documents live in the dark-deployer repository (`docs/`).
 
 ---
 
@@ -110,7 +111,7 @@ Notes:
 
 ## Deployment
 
-The Solidity contracts of this component (`Authority.sol`, `IAuthority.sol`, `dARK.sol`) are deployed by the [dark-deployer](../../README.md) using the deployment v3 pipeline: an operator inventory (see [examples/operator-inventory/](../../examples/operator-inventory/)) is resolved, planned, and rendered into per-machine Docker Compose bundles, then applied with `./deploy.sh install` (locally) or `prepare`/`push`/`apply` (remote hosts). During apply, the pipeline compiles `dARK_dapp/contracts` with a pinned solc-js 0.8.17 image and deploys the resulting `Authority` and `dARK` contracts through the one-shot `contracts-deploy` service; the component checkout branch (`main`) is pinned in `deployment_v3/catalog_data/dark-platform-baseline-v1.0.json`. There is no standalone docker-compose file in this component.
+The Solidity contracts of this component (`Authority.sol`, `IAuthority.sol`, `dARK.sol`) are deployed by the [dark-deployer](https://github.com/LA-Referencia-IOI/dark-deployer) from an operator inventory (see the [inventory reference](https://github.com/LA-Referencia-IOI/dark-deployer/blob/main/examples/operator-inventory/README.md) and the [deployer documentation](https://github.com/LA-Referencia-IOI/dark-deployer/blob/main/docs/deployer.md)). During an install the deployer compiles `dARK_dapp/contracts` with `solc@0.8.17` inside a pinned compiler image and deploys `Authority` first, then `dARK` (constructed with the Authority address), through durable, resumable signed transactions. The component branch (default `main`) is declared in the inventory (`overrides.components`). There is no standalone docker-compose file in this component.
 
 ### Standalone development workflow
 

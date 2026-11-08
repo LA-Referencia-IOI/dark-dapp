@@ -1,5 +1,8 @@
 # dARK 2.0
 
+New platform developer: follow [developer onboarding](https://github.com/LA-Referencia-IOI/dark-deployer/blob/main/docs/developer-onboarding.md)
+for the complete local stack, signed requests and component iteration.
+
 ![dARK Logo](docs/figures/dARK_logo.png)
 
 **dARK** (Decentralized Archival Resource Key) is a blockchain-based implementation of the [ARK](https://arks.org/) identifier scheme.
@@ -70,7 +73,7 @@ dark-dapp/
 Install Python dependencies:
 
 ```bash
-python3 -m venv venv
+python3.14 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
@@ -141,6 +144,20 @@ For development against a node of your own (configured in `config.ini`):
    3. Save both addresses and ABIs to `dARK_dapp/deployed_contracts.ini`
 
 ---
+
+## Integrating a contract change
+
+Use a new disposable chain for an incompatible contract change. Compile and
+redeploy, then use the resulting Authority/dARK addresses in the API/SDK
+configuration. If the interface changes, update the bundled ABIs in
+`dark-core-lib/dark_core_lib/abi.py` (or supply its documented ABI overrides),
+update callers and rebuild the dependent services. The deployer compiles from
+the selected committed `dark-dapp` source; changing this working tree without
+committing does not change a deployment build.
+
+An ordinary component update does not migrate published chain state into new
+contracts. Re-run the signed authority/deposit/resolution checks on the new lab;
+the [onboarding guide](https://github.com/LA-Referencia-IOI/dark-deployer/blob/main/docs/developer-onboarding.md) describes that workflow.
 
 ## Interactive Testing (Jupyter Notebook)
 
